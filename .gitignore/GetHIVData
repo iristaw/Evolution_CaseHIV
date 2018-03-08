@@ -1,0 +1,18 @@
+#2018.03.08
+#Retrivel Strategy:(ts = (("HIV" or "CCR5" or "CD4 T cell" or "CXCR4" or "HAART" or "human immunodefici* virus" OR "CC-chemokine receptor 5")) or ti=(aids and immun*) not ti="aided*" not ti="aid")
+#Time windows:1981-2017,reference website:https://www.hiv.gov/hiv-basics/overview/history/hiv-and-aids-timeline
+#data0:257,566
+#data:134,720
+source wos.read
+library(data.table)
+files <- list.files("C:/Users/Tong/Desktop/test", "*.txt", full.names = TRUE)
+data0<-wos.read(files = files)
+data2<-data0[grep(pattern="HIV|Hiv|hiv",data1$DE),]
+data3<-data0[grep(pattern="AIDS|aids|Aids",data1$DE),]
+data4<-data0[grep(pattern="HIV|Hiv|hiv",data1$TI),]
+data5<-data0[grep(pattern="AIDS|aids|Aids",data1$TI),]
+data1<-rbind(data2,data3,data4,data5)
+data<-unique(data1)
+
+
+write.csv(data,"C:/Users/Tong/Desktop/test/HIVDATA.csv",row.names = FALSE)
