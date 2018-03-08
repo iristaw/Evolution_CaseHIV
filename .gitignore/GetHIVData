@@ -16,3 +16,6 @@ data<-unique(data1)
 
 
 write.csv(data,"C:/Users/Tong/Desktop/test/HIVDATA.csv",row.names = FALSE)
+datat<-read.csv("C:/Users/Tong/Desktop/test/HIVDATA.csv")
+data<-data.frame(datat$AU,datat$AF,datat$TI,datat$C1,datat$DT,datat$PY,datat$WC,datat$SC,datat$UT,stringsAsFactors = FALSE)
+write.csv(data,"C:/Users/Tong/Desktop/test/HIVDATA2.csv",row.names = FALSE)
