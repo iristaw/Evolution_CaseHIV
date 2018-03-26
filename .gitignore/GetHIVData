@@ -19,3 +19,11 @@ write.csv(data,"C:/Users/Tong/Desktop/test/HIVDATA.csv",row.names = FALSE)
 datat<-read.csv("C:/Users/Tong/Desktop/test/HIVDATA.csv")
 data<-data.frame(datat$AU,datat$AF,datat$TI,datat$C1,datat$DT,datat$PY,datat$WC,datat$SC,datat$UT,stringsAsFactors = FALSE)
 write.csv(data,"C:/Users/Tong/Desktop/test/HIVDATA2.csv",row.names = FALSE)
+
+#20180326#
+#因子型不能用于计算，要转换，所以进行以下操作
+#transfer from factor to character#转换格式，第六行是年份  不转成character格式，不过如果有date类型，需要换一个类型转换方式
+datat<-read.csv("C:/Users/study/caseHIV/1.csv")
+for(i in 1:5){datat[,i]=as.character(datat[,i])}
+#column 6 is integer:Year#
+for(i in 7:9){datat[,i]=as.character(datat[,i])}
