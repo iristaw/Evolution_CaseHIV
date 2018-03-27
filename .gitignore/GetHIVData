@@ -27,8 +27,8 @@ datat<-read.csv("C:/Users/study/caseHIV/1.csv")
 for(i in 1:5){datat[,i]=as.character(datat[,i])}
 #column 6 is integer:Year#
 for(i in 7:9){datat[,i]=as.character(datat[,i])}
-
-
+---------------------------------------------------------------
+#0327#
 string <- 'GCGCG'
 pattern <- 'GCG'
 pattern_len <- nchar(pattern)
@@ -37,3 +37,40 @@ sapply(seq_len(nchar(string)), function(x) {
   substr(string, x, x + pattern_len - 1) == pattern
 }) %>% 
   sum()
+---------------------------------------------------------------
+replace <- function(line, oldchar, newchar) {
+  reg <- "\\[(\\s|\\S)*?\\]"
+  pos <- str_locate_all(line,reg)
+  lines <- str_sub(line, start = pos[[1]][, "start"], end = pos[[1]][, "end"])
+  for (i in seq_along(lines)) {
+  pos.new <- str_locate_all(lines[i], oldchar)
+  pos.new <- pos.new[[1]] + pos[[1]][i, "start"] - 1
+  for (i in seq_along(pos.new[, "start"])) {
+  str_sub(line, start = pos.new[i, "start"], end = pos.new[i, "end"]) <- newchar
+    }
+    ##
+  }
+  return(line) ##
+}
+splitc1 <- function(line,splitchar) {
+  #不为空或者包括;
+    if (length(line)!=0) {
+    if(str_detect(line,splitchar)>0){
+      terms <- strsplit(line,splitchar)
+      ##
+      terms <- terms[[1]]
+    } else {
+      terms <- line  ##
+    }
+  } 
+  return(terms)
+}
+test1<-replace(datat[1,4],';','#')#将[]里的;替换为##
+test2<-splitc1(test1,splitchar = '; ')#按;切分#
+test22 <- str_sub(test2[1], start = (str_locate_all(test2[1],"\\[(\\s|\\S)*?\\]")[[1]][, "start"])+1, end = (str_locate_all(test2[1],"\\[(\\s|\\S)*?\\]")[[1]][, "end"])-1)
+#提取C1字段里[]内的内容，即每个机构对应的作者#
+test5<-splitc1(datat[1,1],splitchar='; ')#提取AU字段单个作者#
+test4<-splitc1(test3[2],splitchar = ',')
+paste(test4[1],',',test4[length(test4)],sep = "")#将ins1+国家作为机构的识别#
+a<-length(splitc1(datat[1,1],splitchar='; '))#提取作者数#
+#这里写个循环，提取每个机构对应的作者数#
