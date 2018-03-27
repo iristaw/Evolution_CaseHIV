@@ -27,3 +27,13 @@ datat<-read.csv("C:/Users/study/caseHIV/1.csv")
 for(i in 1:5){datat[,i]=as.character(datat[,i])}
 #column 6 is integer:Year#
 for(i in 7:9){datat[,i]=as.character(datat[,i])}
+
+
+string <- 'GCGCG'
+pattern <- 'GCG'
+pattern_len <- nchar(pattern)
+
+sapply(seq_len(nchar(string)), function(x) {
+  substr(string, x, x + pattern_len - 1) == pattern
+}) %>% 
+  sum()
