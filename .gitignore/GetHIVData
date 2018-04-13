@@ -3,6 +3,7 @@
 #Time windows:1981-2017,reference website:https://www.hiv.gov/hiv-basics/overview/history/hiv-and-aids-timeline
 #data0:257,566
 #data:134,720
+#require data.table,stringr
 source wos.read
 library(data.table)
 files <- list.files("C:/Users/Tong/Desktop/test", "*.txt", full.names = TRUE)
