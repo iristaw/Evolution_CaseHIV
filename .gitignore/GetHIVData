@@ -72,7 +72,12 @@ test2<-splitc1(test1,splitchar = '; ')#按;切分#
 test22 <- str_sub(test2[1], start = (str_locate_all(test2[1],"\\[(\\s|\\S)*?\\]")[[1]][, "start"])+1, end = (str_locate_all(test2[1],"\\[(\\s|\\S)*?\\]")[[1]][, "end"])-1)
 #提取C1字段里[]内的内容，即每个机构对应的作者#
 test5<-splitc1(datat[1,1],splitchar='; ')#提取AU字段单个作者#
-test4<-splitc1(test3[2],splitchar = ',')
+test4<-splitc1(test3[2],splitchar = ',')#这里3？#
 paste(test4[1],',',test4[length(test4)],sep = "")#将ins1+国家作为机构的识别#
 a<-length(splitc1(datat[1,1],splitchar='; '))#提取作者数#
 #这里写个循环，提取每个机构对应的作者数#
+#提取[]之外的字段，疑问：如何看机构呢？一级？二级？N级？尊重标引？
+a<-str_locate(test2[4],"]")
+b<-str_length(test2[4])
+c<-as.numeric(a[1,1])
+str_sub(test2[4], c+1, b)
