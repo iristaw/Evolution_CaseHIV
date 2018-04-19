@@ -72,7 +72,7 @@ test2<-splitc1(test1,splitchar = '; ')#按;切分#
 test22 <- str_sub(test2[1], start = (str_locate_all(test2[1],"\\[(\\s|\\S)*?\\]")[[1]][, "start"])+1, end = (str_locate_all(test2[1],"\\[(\\s|\\S)*?\\]")[[1]][, "end"])-1)
 #提取C1字段里[]内的内容，即每个机构对应的作者#
 test5<-splitc1(datat[1,1],splitchar='; ')#提取AU字段单个作者#
-test4<-splitc1(test3[2],splitchar = ',')#这里3？#
+test4<-splitc1(test3[2],splitchar = ',')#这里3？这句谨慎test4和接下来的paste先不用#
 paste(test4[1],',',test4[length(test4)],sep = "")#将ins1+国家作为机构的识别#
 a<-length(splitc1(datat[1,1],splitchar='; '))#提取作者数#
 #这里写个循环，提取每个机构对应的作者数#
@@ -81,4 +81,4 @@ a<-length(splitc1(datat[1,1],splitchar='; '))#提取作者数#
 a<-str_locate(test2[4],"]")
 b<-str_length(test2[4])
 c<-as.numeric(a[1,1])
-str_sub(test2[4], c+1, b)
+str_sub(test2[4], c+2, b)#有个空格，所有c+2
