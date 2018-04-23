@@ -72,3 +72,73 @@ pasteai1<-function(line1){
   return(linein)
 }
 #pasteai和pasteai1始终只能返回最后一个值#
+-----------------------------------------------
+#20180423#
+\d{4}(?=[\d\D]{3}$)
+ #这个正则表达式能提取字符串倒数第4位到第7位的数字值#
+wos.string.replace <- function(line, oldchar, newchar) {
+  reg <- "\\[(\\s|\\S)*?\\]"
+  pos <- str_locate_all(line,reg)
+  lines <- str_sub(line, start = pos[[1]][, "start"], end = pos[[1]][, "end"])
+  
+  for (i in seq_along(lines)) {
+    
+    pos.new <- str_locate_all(lines[i], oldchar)
+    
+    pos.new <- pos.new[[1]] + pos[[1]][i, "start"] - 1
+    
+    for (i in seq_along(pos.new[, "start"])) {
+      str_sub(line, start = pos.new[i, "start"], end = pos.new[i, "end"]) <- newchar
+    }
+    ##
+  }
+  return(line) ##
+}
+
+#以上替换[]中的；#
+
+wos.item.addresses <- function(line) {
+  #不为空或者包括;
+  splitchar<-";"
+  if (length(line)!=0) {
+    if(str_detect(line,splitchar)>0){
+      terms <- strsplit(line,splitchar)
+      ##
+      terms <- terms[[1]]
+    } else {
+      terms <- line  ##
+    }
+  } 
+  return(terms)
+}
+#以上按 ";"进行分割
+
+wos.item.countries <- function(terms) {
+  locatechar <- "]"
+  if (length(terms)!=0){
+    countries<-c() ##
+    for(term in terms) {
+      pos <-str_locate_all(term,locatechar)
+      pos <- as.numeric(pos[[1]])
+      extractions<-str_sub(term,pos+1)
+      extractions<-str_trim(extractions[1])
+      countries<-c(countries,extractions) ##
+    }
+  }
+  return(countries)
+}
+#以上提取地址
+
+wos.items.USA <- function(results) {
+  
+  countries <- results[ ,"country"]
+  
+  pos <- str_detect( countries, "USA") 
+  pos2 <- str_detect( countries, "[0-9]") 
+  
+  countries[pos | pos2] <- "USA"
+  
+  return(countries)
+}
+
+#以上modify USA
