@@ -130,14 +130,46 @@ wos.item.countries <- function(terms) {
 #以上提取地址
 
 wos.items.USA <- function(results) {
-  
   countries <- results[ ,"country"]
-  
-  pos <- str_detect( countries, "USA") 
-  pos2 <- str_detect( countries, "[0-9]") 
-  
-  countries[pos | pos2] <- "USA"
-  
+  b1<-str_locate_all(countries,",")
+  b2 <- nrow(b1[[1]])
+  b3<-b1[[1]][b2, ]
+  b3 <- as.numeric(b3)
+  c1<-str_sub(countries,b3+1)
+  c1<-str_trim(c1)
+  pos <- str_detect( c1, "USA") 
+  pos2 <- str_detect( c1, "[0-9]") 
+  str_sub(countries, start = b3+1)[pos | pos2] <- "USA"
+  countries$country[which(countries$country=="AL"|countries$country=="AK"
+                          |countries$country=="AS"|countries$country=="AZ"
+                          |countries$country=="AR"|countries$country=="CA"
+                          |countries$country=="CO"|countries$country=="CT"
+                          |countries$country=="DE"|countries$country=="DC"
+                          |countries$country=="FM"|countries$country=="FL"
+                          |countries$country=="GA"|countries$country=="GU"
+                          |countries$country=="HI"|countries$country=="ID"
+                          |countries$country=="IL"|countries$country=="IN"
+                          |countries$country=="IA"|countries$country=="KS"
+                          |countries$country=="KY"|countries$country=="LA"
+                          |countries$country=="ME"|countries$country=="MH"
+                          |countries$country=="MD"|countries$country=="MA"
+                          |countries$country=="MI"|countries$country=="MN"
+                          |countries$country=="MS"|countries$country=="MO"
+                          |countries$country=="MT"|countries$country=="NE"
+                          |countries$country=="NV"|countries$country=="NH"
+                          |countries$country=="NJ"|countries$country=="NM"
+                          |countries$country=="NY"|countries$country=="NC"
+                          |countries$country=="ND"|countries$country=="MP"
+                          |countries$country=="OH"|countries$country=="OK"
+                          |countries$country=="OR"|countries$country=="PW"
+                          |countries$country=="PA"|countries$country=="PR"
+                          |countries$country=="RI"|countries$country=="SC"
+                          |countries$country=="SD"|countries$country=="TN"
+                          |countries$country=="TX"|countries$country=="UT"
+                          |countries$country=="VT"|countries$country=="VI"
+                          |countries$country=="VA"|countries$country=="WA"
+                          |countries$country=="WV"|countries$country=="WI"
+                          |countries$country=="WY")] <-"USA"
   return(countries)
 }
 
