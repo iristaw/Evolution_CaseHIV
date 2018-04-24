@@ -140,6 +140,62 @@ wos.items.USA <- function(results) {
   pos <- str_detect( c1, "USA") 
   pos2 <- str_detect( c1, "[0-9]") 
   str_sub(countries, start = b3+1)[pos | pos2] <- "USA"
+  return(countries)
+}
+
+#以上modify USA
+
+wos.items.countries <- function(items,start= NULL,end= NULL) {
+  
+  uts <- vector()
+  years <- vector()
+  tcs <- vector()
+  extractions <- vector()##
+  
+  for (i in seq_along(items[, "C1"])) {
+    line = items[i, "C1"]
+    #line2 = items[i, "RP"]
+    #line2=substr(line2,1,nchar(line2)-1)
+    #if (length(line)!=0) {
+    # line <- paste(line,line2,sep="; ")
+    #}
+    #else
+    #  line <- paste(line,line2,sep="")
+    #print(i)
+    if (length(line)>0) {
+      
+      year <- as.integer(items[i, "PY"])
+      
+      ut <- as.character(items[i, "UT"]) ##
+      
+     # tc <- as.integer(items[i,"TC"])#
+      
+      line <- wos.string.replace(line,";","#")
+      
+      addresses <- wos.item.addresses(line)
+      
+      extraction <- wos.item.countries(addresses)
+      
+      extractions <- c(extractions, extraction) ##
+      
+      # gsub("\\.","",extractions)
+      
+      years <- c(years, rep(year, times = length(addresses)))
+      
+      uts <- c(uts, rep(ut, times = length(addresses))) ##
+      
+    #  tcs <- c(tcs, rep(tc, times = length(addresses)))#
+      
+    }
+  }
+  #countries = data.frame(extractions, years, uts, tcs, stringsAsFactors = FALSE) #
+  #colnames(countries) <- c("country", "year","ut","cites")#
+  countries = data.frame(extractions, years, uts, stringsAsFactors = FALSE) ##
+  colnames(countries) <- c("country", "year","ut")
+  countries[,1] <- wos.items.USA(countries)
+  countries <- na.omit(countries)
+  countries[,1] <- str_to_upper(countries[,1])
+  countries <- countries[!duplicated(countries),]
   countries$country[which(countries$country=="AL"|countries$country=="AK"
                           |countries$country=="AS"|countries$country=="AZ"
                           |countries$country=="AR"|countries$country=="CA"
@@ -170,7 +226,8 @@ wos.items.USA <- function(results) {
                           |countries$country=="VA"|countries$country=="WA"
                           |countries$country=="WV"|countries$country=="WI"
                           |countries$country=="WY")] <-"USA"
+  if ((!is.null(start))&(!is.null(end))) {
+    countries <- subset (countries, (countries$year>=start)&(countries$year<=end))}
   return(countries)
+  
 }
-
-#以上modify USA
