@@ -95,7 +95,7 @@ wos.string.replace <- function(line, oldchar, newchar) {
   return(line) ##
 }
 
-#以上替换[]中的；#
+#以上替换[]中的";"#
 
 wos.item.addresses <- function(line) {
   #不为空或者包括;
@@ -130,20 +130,18 @@ wos.item.countries <- function(terms) {
 #以上提取地址
 
 wos.items.USA <- function(results) {
-  countries <- results[ ,"country"]
+ countries <- results[ ,"country"]
   b1<-str_locate_all(countries,",")
-  b2 <- nrow(b1[[1]])
-  b3<-b1[[1]][b2, ]
-  b3 <- as.numeric(b3)
-  c1<-str_sub(countries,b3+1)
-  c1<-str_trim(c1)
+  b3<-vector()
+  bl<-lengths(b1)/2 
+  b3<-diag(sapply(b1, function(v) return(v[bl])))
+  c1<-str_sub(countries,b3+2) 
   pos <- str_detect( c1, "USA") 
-  pos2 <- str_detect( c1, "[0-9]") 
-  str_sub(countries, start = b3+1)[pos | pos2] <- "USA"
+  str_sub(countries, start = b3+2)[pos==TRUE] <- "USA"
   return(countries)
 }
 
-#以上modify USA
+#以上规范地址中的 USA
 
 wos.items.countries <- function(items,start= NULL,end= NULL) {
   
@@ -154,21 +152,12 @@ wos.items.countries <- function(items,start= NULL,end= NULL) {
   
   for (i in seq_along(items[, "C1"])) {
     line = items[i, "C1"]
-    #line2 = items[i, "RP"]
-    #line2=substr(line2,1,nchar(line2)-1)
-    #if (length(line)!=0) {
-    # line <- paste(line,line2,sep="; ")
-    #}
-    #else
-    #  line <- paste(line,line2,sep="")
-    #print(i)
-    if (length(line)>0) {
+
+        if (length(line)>0) {
       
       year <- as.integer(items[i, "PY"])
       
       ut <- as.character(items[i, "UT"]) ##
-      
-     # tc <- as.integer(items[i,"TC"])#
       
       line <- wos.string.replace(line,";","#")
       
@@ -178,55 +167,18 @@ wos.items.countries <- function(items,start= NULL,end= NULL) {
       
       extractions <- c(extractions, extraction) ##
       
-      # gsub("\\.","",extractions)
-      
       years <- c(years, rep(year, times = length(addresses)))
       
       uts <- c(uts, rep(ut, times = length(addresses))) ##
-      
-    #  tcs <- c(tcs, rep(tc, times = length(addresses)))#
-      
     }
   }
-  #countries = data.frame(extractions, years, uts, tcs, stringsAsFactors = FALSE) #
-  #colnames(countries) <- c("country", "year","ut","cites")#
   countries = data.frame(extractions, years, uts, stringsAsFactors = FALSE) ##
   colnames(countries) <- c("country", "year","ut")
   countries[,1] <- wos.items.USA(countries)
   countries <- na.omit(countries)
   countries[,1] <- str_to_upper(countries[,1])
   countries <- countries[!duplicated(countries),]
-  countries$country[which(countries$country=="AL"|countries$country=="AK"
-                          |countries$country=="AS"|countries$country=="AZ"
-                          |countries$country=="AR"|countries$country=="CA"
-                          |countries$country=="CO"|countries$country=="CT"
-                          |countries$country=="DE"|countries$country=="DC"
-                          |countries$country=="FM"|countries$country=="FL"
-                          |countries$country=="GA"|countries$country=="GU"
-                          |countries$country=="HI"|countries$country=="ID"
-                          |countries$country=="IL"|countries$country=="IN"
-                          |countries$country=="IA"|countries$country=="KS"
-                          |countries$country=="KY"|countries$country=="LA"
-                          |countries$country=="ME"|countries$country=="MH"
-                          |countries$country=="MD"|countries$country=="MA"
-                          |countries$country=="MI"|countries$country=="MN"
-                          |countries$country=="MS"|countries$country=="MO"
-                          |countries$country=="MT"|countries$country=="NE"
-                          |countries$country=="NV"|countries$country=="NH"
-                          |countries$country=="NJ"|countries$country=="NM"
-                          |countries$country=="NY"|countries$country=="NC"
-                          |countries$country=="ND"|countries$country=="MP"
-                          |countries$country=="OH"|countries$country=="OK"
-                          |countries$country=="OR"|countries$country=="PW"
-                          |countries$country=="PA"|countries$country=="PR"
-                          |countries$country=="RI"|countries$country=="SC"
-                          |countries$country=="SD"|countries$country=="TN"
-                          |countries$country=="TX"|countries$country=="UT"
-                          |countries$country=="VT"|countries$country=="VI"
-                          |countries$country=="VA"|countries$country=="WA"
-                          |countries$country=="WV"|countries$country=="WI"
-                          |countries$country=="WY")] <-"USA"
-  if ((!is.null(start))&(!is.null(end))) {
+    if ((!is.null(start))&(!is.null(end))) {
     countries <- subset (countries, (countries$year>=start)&(countries$year<=end))}
   return(countries)
   
