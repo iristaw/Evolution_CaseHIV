@@ -76,6 +76,10 @@ pasteai1<-function(line1){
 #20180423#
 \d{4}(?=[\d\D]{3}$)
  #这个正则表达式能提取字符串倒数第4位到第7位的数字值#
+ 
+#20180427
+#提取地址字段
+#以下替换[]中的";"#
 wos.string.replace <- function(line, oldchar, newchar) {
   reg <- "\\[(\\s|\\S)*?\\]"
   pos <- str_locate_all(line,reg)
@@ -95,9 +99,9 @@ wos.string.replace <- function(line, oldchar, newchar) {
   return(line) ##
 }
 
-#以上替换[]中的";"#
 
-wos.item.addresses <- function(line) {
+#以下按 ";"进行分割
+  wos.item.split <- function(line) {  
   #不为空或者包括;
   splitchar<-";"
   if (length(line)!=0) {
@@ -111,40 +115,39 @@ wos.item.addresses <- function(line) {
   } 
   return(terms)
 }
-#以上按 ";"进行分割
 
-wos.item.countries <- function(terms) {
+#以下提取地址
+  wos.item.addresses <- function(terms) {
   locatechar <- "]"
   if (length(terms)!=0){
-    countries<-c() ##
+    addresses<-c() ##
     for(term in terms) {
       pos <-str_locate_all(term,locatechar)
       pos <- as.numeric(pos[[1]])
       extractions<-str_sub(term,pos+1)
       extractions<-str_trim(extractions[1])
-      countries<-c(countries,extractions) ##
+      addresses<-c(addresses,extractions) ##
     }
   }
-  return(countries)
+  return(addresses)
 }
-#以上提取地址
 
+#以下规范地址中的 USA
 wos.items.USA <- function(results) {
- countries <- results[ ,"country"]
-  b1<-str_locate_all(countries,",")
+  addresses <- results[ ,"address"]
+  b1<-str_locate_all(addresses,",")
   b3<-vector()
   bl<-lengths(b1)/2 
   b3<-diag(sapply(b1, function(v) return(v[bl])))
-  c1<-str_sub(countries,b3+2) 
+  c1<-str_sub(addresses,b3+2) 
   pos <- str_detect( c1, "USA") 
-  str_sub(countries, start = b3+2)[pos==TRUE] <- "USA"
-  return(countries)
+  str_sub(addresses, start = b3+2)[pos==TRUE] <- "USA"
+  return(addresses)
 }
 
-#以上规范地址中的 USA
 
-wos.items.countries <- function(items,start= NULL,end= NULL) {
-  
+
+  wos.items.addresses <- function(items,start= NULL,end= NULL) { 
   uts <- vector()
   years <- vector()
   tcs <- vector()
@@ -161,9 +164,9 @@ wos.items.countries <- function(items,start= NULL,end= NULL) {
       
       line <- wos.string.replace(line,";","#")
       
-      addresses <- wos.item.addresses(line)
+      addresses <- wos.item.split(line)
       
-      extraction <- wos.item.countries(addresses)
+      extraction <- wos.item.addresses(addresses)
       
       extractions <- c(extractions, extraction) ##
       
@@ -172,14 +175,15 @@ wos.items.countries <- function(items,start= NULL,end= NULL) {
       uts <- c(uts, rep(ut, times = length(addresses))) ##
     }
   }
-  countries = data.frame(extractions, years, uts, stringsAsFactors = FALSE) ##
-  colnames(countries) <- c("country", "year","ut")
-  countries[,1] <- wos.items.USA(countries)
-  countries <- na.omit(countries)
-  countries[,1] <- str_to_upper(countries[,1])
-  countries <- countries[!duplicated(countries),]
+  addresses = data.frame(extractions, years, uts, stringsAsFactors = FALSE) ##
+  colnames(addresses) <- c("address", "year","ut")
+  addresses[,1] <- wos.items.USA(addresses)
+  addresses <- na.omit(addresses)
+  addresses[,1] <- str_to_upper(addresses[,1])
+  addresses <- addresses[!duplicated(addresses),]
     if ((!is.null(start))&(!is.null(end))) {
-    countries <- subset (countries, (countries$year>=start)&(countries$year<=end))}
-  return(countries)
+      addresses <- subset (addresses, (addresses$year>=start)&(addresses$year<=end))}
+  return(addresses)
   
 }
+------------------------------------------------------------------------------------------
