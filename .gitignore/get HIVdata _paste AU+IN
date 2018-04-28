@@ -130,7 +130,27 @@ wos.string.replace <- function(line, oldchar, newchar) {
     }
   }
   return(addresses)
-}
+  }
+
+    #以下提取[C1中的作者]
+    wos.item.authors <- function(terms) {
+      locatechar1 <- "\\["
+      locatechar2 <- "]"
+      if (length(terms)!=0){
+        authors<-c() ##
+        for(term in terms) {
+          pos1 <-str_locate_all(term,locatechar1)
+          pos2 <-str_locate_all(term,locatechar2)
+          pos1 <- as.numeric(pos1[[1]])
+          pos2 <- as.numeric(pos2[[1]])
+          extractions<-str_sub(term,pos1+1,pos2-1)
+          extractions<-str_trim(extractions[1])
+          authors<-c(authors,extractions) ##
+        }
+      }
+      return(authors)
+    }
+
 
 #以下规范地址中的 USA
 wos.items.USA <- function(results) {
@@ -150,8 +170,9 @@ wos.items.USA <- function(results) {
   wos.items.addresses <- function(items,start= NULL,end= NULL) { 
   uts <- vector()
   years <- vector()
-  tcs <- vector()
-  extractions <- vector()##
+  aus<-vector()
+  extractions1 <- vector()##
+  extractions2 <- vector()
   
   for (i in seq_along(items[, "C1"])) {
     line = items[i, "C1"]
@@ -161,29 +182,37 @@ wos.items.USA <- function(results) {
       year <- as.integer(items[i, "PY"])
       
       ut <- as.character(items[i, "UT"]) ##
+      au <- as.character(items[i, "AU"]) ##
       
       line <- wos.string.replace(line,";","#")
       
       addresses <- wos.item.split(line)
       
-      extraction <- wos.item.addresses(addresses)
+      extraction1 <- wos.item.addresses(addresses)
+      extraction2 <- wos.item.authors(addresses)
       
-      extractions <- c(extractions, extraction) ##
+      extractions1 <- c(extractions1, extraction1) ##
+      extractions2 <- c(extractions2, extraction2) ##
+      aus <- c(aus, rep(au, times = length(addresses)))
       
       years <- c(years, rep(year, times = length(addresses)))
       
       uts <- c(uts, rep(ut, times = length(addresses))) ##
     }
   }
-  addresses = data.frame(extractions, years, uts, stringsAsFactors = FALSE) ##
-  colnames(addresses) <- c("address", "year","ut")
+  addresses = data.frame(extractions1,extractions2, aus,years, uts, stringsAsFactors = FALSE) ##
+  colnames(addresses) <- c("address", "author_ins","authors","year","ut")
   addresses[,1] <- wos.items.USA(addresses)
   addresses <- na.omit(addresses)
   addresses[,1] <- str_to_upper(addresses[,1])
   addresses <- addresses[!duplicated(addresses),]
+  addresses$author_ins<-gsub("#",";",addresses$author_ins,fixed = TRUE)
     if ((!is.null(start))&(!is.null(end))) {
       addresses <- subset (addresses, (addresses$year>=start)&(addresses$year<=end))}
   return(addresses)
   
-}
-------------------------------------------------------------------------------------------
+  }
+  
+  #以上实现地址字段；C1中作者字段的提取和规范
+  
+  #a$author<-gsub("#",";",a$author,fixed = TRUE)
